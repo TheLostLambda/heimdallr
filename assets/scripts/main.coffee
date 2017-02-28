@@ -1,8 +1,9 @@
 ## Constants
 fps = 60#fps
 isPaused = false#bool
-simSpeed = 50000#x
-scale = 1350000#m/px
+simSpeed = 10000#x
+#scale = 1350000#m/px
+scale = 1263955670
 mousePos = new Phys.Celestial(0,0)
 viewPort = new Util.Vector2(0,0)#Tuple
 lastView = new Util.Vector2(0,0)#Tuple
@@ -59,9 +60,10 @@ resizeS.onValue(Util.sizeCanvas)
 
 ## Testing Initialization Code.
 initState = () ->
-  s = [new Phys.Celestial(0, 0, 5.972e24, 6.371e6), new Phys.Celestial(0, 3.844e8, 7.35e22, 1.75e6)]
-  s[0].velocity = new Util.Vector2(-12.325, 0)
-  s[1].velocity = new Util.Vector2(1000, 0)
+  #s = [new Phys.Celestial(0, 0, 2.7846e30, 1.0436e4), new Phys.Celestial(0, 4.4880e11, 2.0921e26, 2.5484e7)]
+  s = [new Phys.Celestial(0, 0, 2.7846e30, 1.0436e9), new Phys.Celestial(0, 4.4880e11, 2.0921e26, 2.5484e10)]
+  s[0].velocity = new Util.Vector2(0, 0)
+  s[1].velocity = new Util.Vector2(20343.13599, 0)
   return s
 # To be removed in the future.
 
@@ -80,9 +82,9 @@ modelP = inputS.scan(initState(), (model, event) ->
       # Return the initial state.
       return initState()
   if event.type is 'mousedown'
-    if event.which == 1
+    #if event.which == 1
       # Return an updated model that is the same plus a new object with the mouse's X and Y coords.
-      return model.concat(new Phys.Celestial((event.offsetX - viewPort.X) * scale, (event.offsetY - viewPort.Y) * scale, 5.972e24, 6.371e6))
+      #return model.concat(new Phys.Celestial((event.offsetX - viewPort.X) * scale, (event.offsetY - viewPort.Y) * scale, 5.972e24, 6.371e6))
     if event.which == 2
       # Comment this section
       lastView = viewPort
@@ -121,22 +123,27 @@ speedP.assign($('#speed'), 'text')
 
 ## Initialize
 screenSize = Util.sizeCanvas()
-viewPort = screenSize.multiply(1/2)
+viewPort = viewPort.add(screenSize.multiply(1/2))
 
 ## Game Loop
 modelP.sample(Util.ticksToMilliseconds(fps)).onValue((model) ->
   # Clears the screen.
-  Util.clear()
+  #Util.clear()
+
+  console.log(viewPort)
+  console.log(scale)
 
   # For every object...
   for object in model
     # Update if the simulation is not paused.
-    if not isPaused then updateObject(object, model)
+    if not isPaused
+      console.log(object)
+      updateObject(object, model)
 
   # For every object...
-  for object in model
+  #for object in model
     # Check collisions and remove colliding objects by sending a delete request to the 'inputS' bus.
-    if Phys.checkCollisions(object, model).length > 0 then inputS.push('delete ' + object.UUID)
+    #if Phys.checkCollisions(object, model).length > 0 then inputS.push('delete ' + object.UUID)
 
   for object in Phys.checkCollisions(mousePos,model)
     objectInfo = 'UUID: ' + object.UUID + '\tVelocity: (' + Math.round(object.velocity.X) + ', ' + Math.round(object.velocity.Y) + ')'
