@@ -1,0 +1,183 @@
+$std-font-stack: 'Source Sans Pro', sans-serif
+$base-color: hsl(360, 0%, 30%)
+$complement-color: hsl(360, 0%, 85%)
+$accent-color: hsl(275, 80%, 50%)
+$shadow-color: hsla(0, 0%, 0%, .3)
+
+body
+  background-color: $base-color
+  margin: 0
+  padding: 0
+
+.waterfall
+  display: block
+  opacity: 0
+  position: relative
+  top: -25px
+
+#navbar
+  background-color: $base-color
+  box-shadow: 0 4px 8px 0 $shadow-color
+  margin: 0
+  overflow: hidden
+  position: absolute
+  top: 0
+  width: 100%
+
+  *
+    display: inline-block
+    padding: 0 .5em
+    text-decoration: none
+    vertical-align: middle
+
+  p
+    color: $complement-color
+    font: 2em $std-font-stack
+    line-height: 2em
+    margin: 0
+
+    &:hover
+      color: $accent-color
+
+  .page-selected
+    color: $accent-color
+
+  #nav-block
+    img
+      width: 3.1em
+
+    .v-divider
+      background-color: $accent-color
+      height: 3em
+      padding: 0
+      width: 2px
+
+#hero
+  background-color: $accent-color
+  height: 15em
+  overflow: hidden
+  position: relative
+  top: 4em
+  width: 100%
+  z-index: -1
+
+  p
+    color: $base-color
+    font-family: $std-font-stack
+    margin: 0
+    text-align: center
+
+  .wheel
+    *
+      display: none
+      position: relative
+
+  .waterfall
+    display: block
+
+  #title
+    font-size: 2em
+
+  #text
+    font-size: 2em
+    left: 50%
+    padding: 1em 0 0
+    transform: translate(-50%, 0)
+    width: 70%
+
+  #name
+    font-size: 5em
+    padding: .6em 0 0
+
+#content
+  background-color: $base-color
+  color: $complement-color
+  position: relative
+  top: 4em
+
+  *
+    margin: 0
+    padding: 0 0 1em
+    position: relative
+
+  p
+    font-family: $std-font-stack
+    font-size: 1.75em
+    padding: .5em 0 0
+    text-align: justify
+    text-indent: 2em
+
+  .controls
+    *
+      display: inline-block
+      padding: 0
+
+    p
+      font-family: $std-font-stack
+      font-size: 1em
+      text-align: left
+      text-indent: 0
+
+  .left-pane
+    #text
+      left: 7.5%
+      width: 70%
+
+      .header
+        font-size: 2.5em
+        text-align: left
+        text-indent: 0
+
+  .right-pane
+    #text
+      left: 22.5%
+      width: 70%
+
+      .header
+        font-size: 2.5em
+        text-align: right
+        text-indent: 0
+
+#split-content
+  background-color: $base-color
+  padding: 0 0 1em
+  position: relative
+  top: 4em
+
+  > *
+    display: inline-block
+    position: relative
+    vertical-align: middle
+
+  #text-pane
+    width: 55% - .5%
+
+    *
+      margin: 0
+      position: relative
+
+    p
+      color: $complement-color
+      font-family: $std-font-stack
+      font-size: 2em
+      padding: .5em 1em 0
+      text-align: justify
+      text-indent: 2em
+
+    #planet
+      font-size: 2.5em
+      text-align: center
+      text-indent: 0
+
+  #img-pane
+    width: 45% - .5%
+
+    *
+      margin: 0
+      position: relative
+
+    img
+      $black: hsl(0, 0%, 0%)
+      box-shadow: 0 0 5px 5px $black
+      left: 10%
+      width: 80%

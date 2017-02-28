@@ -1,0 +1,4 @@
+.sass-lint.yml
+.sass-cache
+assets/styles/*.css*
+assets/scripts/*.js*
