@@ -130,14 +130,14 @@ modelP.sample(Util.ticksToMilliseconds(fps)).onValue((model) ->
   # Clears the screen.
   #Util.clear()
 
-  console.log(viewPort)
-  console.log(scale)
+  #console.log(viewPort)
+  #console.log(scale)
 
   # For every object...
   for object in model
     # Update if the simulation is not paused.
     if not isPaused
-      console.log(object)
+      #console.log(object)
       updateObject(object, model)
 
   # For every object...

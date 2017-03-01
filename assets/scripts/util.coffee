@@ -30,8 +30,8 @@ Util.UUID = (a) -> if a then (a ^ Math.random() * 16 >> a / 4).toString(16) else
 # external and internal bounds of the HTML5 canvas element.
 Util.sizeCanvas = () ->
   canvas = $('#screen')[0] # JQuery call used to fetch the canvas element.
-  canvas.style.width ='100%'
-  canvas.style.height ='90%'
+  canvas.style.width = window.innerWidth
+  canvas.style.height = window.innerHeight - $('#navbar').height() - $('.controls').height() * 2
   canvas.width  = canvas.offsetWidth
   canvas.height = canvas.offsetHeight
   return new Util.Vector2(canvas.width, canvas.height)
