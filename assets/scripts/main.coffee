@@ -1,9 +1,11 @@
 ## Constants
 fps = 60#fps
 isPaused = false#bool
-simSpeed = 10000#x
-#scale = 1350000#m/px
+trails = false
+orbit = true
+simSpeed = 5120000#x
 scale = 1263955670
+scale2 = 10000000
 mousePos = new Phys.Celestial(0,0)
 viewPort = new Util.Vector2(0,0)#Tuple
 lastView = new Util.Vector2(0,0)#Tuple
@@ -25,12 +27,12 @@ updateObject = (object, allObjects) ->
 drawObject = (object) ->
   # Gets the context of the screen.
   canvasContext = $('#screen')[0].getContext('2d')
-  # Draws a "POL" for each object.
-  canvasContext.drawImage($('#HEIM')[0]
-    , (object.xCoord / scale) - (object.radius / scale) + viewPort.X
-    , (object.yCoord / scale) - (object.radius / scale) + viewPort.Y
-    , (object.radius / scale) * 2
-    , (object.radius / scale) * 2)
+  s = if orbit then scale else scale2
+  canvasContext.drawImage($(object.tex)[0]
+    , (object.xCoord / s) - (object.radius / s) + viewPort.X
+    , (object.yCoord / s) - (object.radius / s) + viewPort.Y
+    , (object.radius / s) * 2
+    , (object.radius / s) * 2)
 
 ## Streams
 
@@ -42,6 +44,8 @@ clickS = $('#screen').asEventStream('mousedown mouseup mousemove mousewheel')
 resetS = $('#reset').asEventStream('click').map('reset')
 # Stream of click events created when the 'pause' button is clicked.
 pauseS = $('#pause').asEventStream('click')
+trailS = $('#trail').asEventStream('click')
+orbitS = $('#orbit').asEventStream('click')
 # Stream of '1/2' created when the 'slower' button is clicked.
 slowS = $('#slower').asEventStream('click').map(1/2)
 # Stream of '2' created when the 'faster' button is clicked.
@@ -56,14 +60,21 @@ inputS.plug(clickS.merge(resetS))
 ## Subscriptions
 
 # Calls 'sizeCanvas()' function when resize stream has a new value.
-resizeS.onValue(Util.sizeCanvas)
+resizeS.onValue(() -> Util.sizeCanvas())
 
 ## Testing Initialization Code.
 initState = () ->
-  #s = [new Phys.Celestial(0, 0, 2.7846e30, 1.0436e4), new Phys.Celestial(0, 4.4880e11, 2.0921e26, 2.5484e7)]
-  s = [new Phys.Celestial(0, 0, 2.7846e30, 1.0436e9), new Phys.Celestial(0, 4.4880e11, 2.0921e26, 2.5484e10)]
-  s[0].velocity = new Util.Vector2(0, 0)
-  s[1].velocity = new Util.Vector2(20343.13599, 0)
+  if orbit
+    lich = new Phys.Celestial('#LICH', 0, 0, 2.7846e30, 3e9, 'Lich')
+    heimdallr = new Phys.Celestial('#HEIM', 0, 4.4880e11, 2.0921e26, 1e10, 'Heimdallr')
+    s = [lich, heimdallr]
+    s[0].velocity = new Util.Vector2(0, 0)
+    s[1].velocity = new Util.Vector2(20343.13599, 0)
+  else
+    lich = new Phys.Celestial('#LICH', 0, 0, 2.7846e30, 1.0436e4, 'Lich')
+    earth = new Phys.Celestial('#POL', 0, 0, 5.972e24, 6.371e6, 'Earth')
+    heimdallr = new Phys.Celestial('#HEIM', 0, 0, 2.0921e26, 2.5484e7, 'Heimdallr')
+    s = [heimdallr, earth, lich]
   return s
 # To be removed in the future.
 
@@ -80,6 +91,7 @@ modelP = inputS.scan(initState(), (model, event) ->
     # If the string is 'reset'...
     if event is 'reset'
       # Return the initial state.
+      Util.clear()
       return initState()
   if event.type is 'mousedown'
     #if event.which == 1
@@ -99,15 +111,17 @@ modelP = inputS.scan(initState(), (model, event) ->
       viewPort = lastView.add(shift)
       return model
     else
-      mousePos.xCoord = (event.offsetX - viewPort.X) * scale
-      mousePos.yCoord = (event.offsetY - viewPort.Y) * scale
+      s = if orbit then scale else scale2
+      mousePos.xCoord = (event.offsetX - viewPort.X) * s
+      mousePos.yCoord = (event.offsetY - viewPort.Y) * s
+
       # Ignore input and return the same model.
       return model
   if event.type is 'mousewheel'
     if event.originalEvent.wheelDelta > 0
-      scale = Math.round(scale * 0.9)
+      if orbit then scale = Math.round(scale * 0.9) else scale2 = Math.round(scale2 * 0.9)
     else
-      scale = Math.round(scale * 1.1)
+      if orbit then scale = Math.round(scale * 1.1) else scale2 = Math.round(scale2 * 1.1)
     return model
 )
 
@@ -115,6 +129,14 @@ modelP = inputS.scan(initState(), (model, event) ->
 pauseP = pauseS.map(1).scan(1, (accumulator, value) -> accumulator + value).map((value) -> value % 2 == 0)
 pauseP.onValue((newPause) -> isPaused = newPause)
 pauseP.map((pause) -> if pause then 'Play' else 'Pause').assign($('#pause'), 'text')
+
+trailP = trailS.map(1).scan(1, (accumulator, value) -> accumulator + value).map((value) -> value % 2 == 0)
+trailP.onValue((newTrails) -> trails = newTrails)
+trailP.map((trails) -> if trails then 'Trails Off' else 'Trails On').assign($('#trail'), 'text')
+
+orbitP = orbitS.map(1).scan(0, (accumulator, value) -> accumulator + value).map((value) -> value % 2 == 0)
+orbitP.onValue((newOrbit) -> orbit = newOrbit; inputS.push('reset'))
+orbitP.map((orbits) -> if orbit then 'Concentric' else 'Orbit').assign($('#orbit'), 'text')
 
 # Changes the 'simSpeed' value when a faster or slower event occurs.
 speedP = speedS.scan(simSpeed, (accumulator, factor) -> Math.round(accumulator * factor))
@@ -124,21 +146,19 @@ speedP.assign($('#speed'), 'text')
 ## Initialize
 screenSize = Util.sizeCanvas()
 viewPort = viewPort.add(screenSize.multiply(1/2))
+scale2 = Math.round(2.5484e7 * 2 / screenSize.Y) * 1.1
 
 ## Game Loop
 modelP.sample(Util.ticksToMilliseconds(fps)).onValue((model) ->
-  # Clears the screen.
-  #Util.clear()
+  if orbit then $('#scale').text('Scale: ' + scale) else $('#scale').text('Scale: ' + scale2)
 
-  #console.log(viewPort)
-  #console.log(scale)
+  # Clears the screen.
+  if not trails then Util.clear()
 
   # For every object...
   for object in model
     # Update if the simulation is not paused.
-    if not isPaused
-      #console.log(object)
-      updateObject(object, model)
+    if not isPaused and orbit then updateObject(object, model)
 
   # For every object...
   #for object in model
@@ -146,7 +166,14 @@ modelP.sample(Util.ticksToMilliseconds(fps)).onValue((model) ->
     #if Phys.checkCollisions(object, model).length > 0 then inputS.push('delete ' + object.UUID)
 
   for object in Phys.checkCollisions(mousePos,model)
-    objectInfo = 'UUID: ' + object.UUID + '\tVelocity: (' + Math.round(object.velocity.X) + ', ' + Math.round(object.velocity.Y) + ')'
+    objectInfo = 'UUID: ' + object.UUID + ';\t'
+
+    if orbit
+      objectInfo += 'Velocity: (' + Math.round(object.velocity.X) + 'm/s , ' + Math.round(object.velocity.Y) + 'm/s );\t'
+    else
+      objectInfo += 'Mass: ' + object.mass + 'kg;\t'
+      objectInfo += 'Radius: ' + object.radius + 'm;\t'
+
     $('#objectInfo').text(objectInfo)
 
   # For every object...

@@ -4,8 +4,10 @@ window.Phys = {}
 Phys.G = 6.67e-11#N*m^2/kg^2 A Gravitational Constant or Newtons Constant also I'm honestly not explaining the entire thing in 1 line, Look up on google.
 
 ## Constructors
-Phys.Celestial = (xCoord, yCoord, mass = 0, radius = 0) -> #The physics of a Celestial Object. This states its mass, velocity, and distances from other CelestialObjects
-  @UUID = Util.UUID()
+#The physics of a Celestial Object. This states its mass, velocity, and distances from other CelestialObjects
+Phys.Celestial = (tex, xCoord, yCoord, mass = 0, radius = 0, uuid = "") ->
+  @UUID = if uuid == "" then Util.UUID() else uuid
+  @tex = tex
   @xCoord = xCoord
   @yCoord = yCoord
   @velocity = new Util.Vector2(0, 0)

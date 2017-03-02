@@ -9,6 +9,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/bacon.js/0.3.15/Bacon.min.js"> </script>
     <img id="HEIM" src="/assets/resources/heimdallr.png" alt="Heimdallr" style="display: none;">
+    <img id="POL" src="/assets/resources/earth.png" alt="Planet O' Life" style="display: none;">
+    <img id="LICH" src="/assets/resources/lich.png" alt="Heimdallr" style="display: none;">
     <script src="/assets/scripts/animate.js"></script>
     <title>Heimdallr</title>
 </head>
@@ -35,8 +37,15 @@
   <canvas id="screen"></canvas>
   <div id="content">
     <div class="controls">
+      <p id="tutor">Mouse Wheel to zoom. Middle click to pan. Orbit view shows planet and star
+                    (objects not to scale). Hover over an object for info. Concentric view is a
+                    to scale view of the celestial objects. Zoom in center to see Lich.</p>
       <button id="reset">Reset</button>
       <button id="pause">Pause</button>
+      <button id="trail">Trails</button>
+      <button id="orbit">Orbit</button>
+      <p id="scale"></p>
+      <p>m/px</p>
       <button id="slower">Slower</button>
       <p id="speed"></p>
       <p>x</p>
