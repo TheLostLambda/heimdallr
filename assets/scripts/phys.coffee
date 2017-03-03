@@ -5,9 +5,10 @@ Phys.G = 6.67e-11#N*m^2/kg^2 A Gravitational Constant or Newtons Constant also I
 
 ## Constructors
 #The physics of a Celestial Object. This states its mass, velocity, and distances from other CelestialObjects
-Phys.Celestial = (tex, xCoord, yCoord, mass = 0, radius = 0, uuid = "") ->
+Phys.Celestial = (tex, xCoord, yCoord, mass = 0, radius = 0, uuid = "", layer = 0) ->
   @UUID = if uuid == "" then Util.UUID() else uuid
   @tex = tex
+  @layer = layer
   @xCoord = xCoord
   @yCoord = yCoord
   @velocity = new Util.Vector2(0, 0)
@@ -30,12 +31,12 @@ Phys.Celestial = (tex, xCoord, yCoord, mass = 0, radius = 0, uuid = "") ->
 
 ## Functions
 Phys.totalGravityVector = (object, allObjects) -> # This is the physics for a gravity vector
-  otherObjects = allObjects.filter((obj) -> obj != object)
+  otherObjects = allObjects.filter((obj) -> obj != object and obj.layer == object.layer)
   gravities = otherObjects.map((otherObject) -> object.gravityVectorTo(otherObject))
   totalGravity = gravities.reduce(((totalVector, vector) -> totalVector.add(vector)), new Util.Vector2(0, 0))
   return totalGravity
 # Collisions
 Phys.checkCollisions = (object, allObjects) ->
-  otherObjects = allObjects.filter((obj) -> obj != object)
+  otherObjects = allObjects.filter((obj) -> obj != object and obj.layer == object.layer)
   collisions = otherObjects.filter((otherObject) -> object.distanceTo(otherObject) <= object.radius + otherObject.radius)
   return collisions

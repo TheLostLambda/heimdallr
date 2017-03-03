@@ -7,7 +7,7 @@ waterfall = () ->
     win = $(window).scrollTop() + $(window).height()
     win -= waterfallPreempt
     if win > obj
-      $(this).animate({ opacity: 1, top: 0 }, 750)
+      $(this).animate({ opacity: 1, top: 0 }, 1000)
   )
 
 wheel = (curr) ->

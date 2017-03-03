@@ -11,6 +11,11 @@ viewPort = new Util.Vector2(0,0)#Tuple
 lastView = new Util.Vector2(0,0)#Tuple
 lastClick = new Util.Vector2(0,0)#Tuple
 
+## Initialize
+screenSize = Util.sizeCanvas()
+viewPort = viewPort.add(screenSize.multiply(1/2))
+scale2 = Math.round(6.957e7 * 2 / screenSize.Y) * 1.1
+
 ## Functions
 
 # This function updates the movement of an object.
@@ -65,16 +70,22 @@ resizeS.onValue(() -> Util.sizeCanvas())
 ## Testing Initialization Code.
 initState = () ->
   if orbit
-    lich = new Phys.Celestial('#LICH', 0, 0, 2.7846e30, 3e9, 'Lich')
-    heimdallr = new Phys.Celestial('#HEIM', 0, 4.4880e11, 2.0921e26, 1e10, 'Heimdallr')
-    s = [lich, heimdallr]
+    quarter = scale * (screenSize.X / 4)
+    lich = new Phys.Celestial('#LICH', -quarter, 0, 2.7846e30, 3e9, 'Lich', 0)
+    heimdallr = new Phys.Celestial('#HEIM', -quarter, 4.4880e11, 2.0921e26, 1e10, 'Heimdallr', 0)
+    sol = new Phys.Celestial('#SOL', quarter, 0, 1.989e30, 1e10, 'Sol', 1)
+    earth = new Phys.Celestial('#POL', quarter, 1.496e11, 5.972e24, 3e9, 'Earth', 1)
+    s = [lich, heimdallr, sol, earth]
     s[0].velocity = new Util.Vector2(0, 0)
     s[1].velocity = new Util.Vector2(20343.13599, 0)
+    s[2].velocity = new Util.Vector2(0, 0)
+    s[3].velocity = new Util.Vector2(29290, 0)
   else
     lich = new Phys.Celestial('#LICH', 0, 0, 2.7846e30, 1.0436e4, 'Lich')
+    sol = new Phys.Celestial('#SOL', 0, 0, 1.989e30, 6.957e7, 'Sol')
     earth = new Phys.Celestial('#POL', 0, 0, 5.972e24, 6.371e6, 'Earth')
     heimdallr = new Phys.Celestial('#HEIM', 0, 0, 2.0921e26, 2.5484e7, 'Heimdallr')
-    s = [heimdallr, earth, lich]
+    s = [sol, heimdallr, earth, lich]
   return s
 # To be removed in the future.
 
@@ -113,7 +124,7 @@ modelP = inputS.scan(initState(), (model, event) ->
     else
       s = if orbit then scale else scale2
       mousePos.xCoord = (event.offsetX - viewPort.X) * s
-      mousePos.yCoord = (event.offsetY - viewPort.Y) * s
+      mousePos.yCoord = (event.offsetY - $('#navbar').height() - viewPort.Y) * s
 
       # Ignore input and return the same model.
       return model
@@ -143,11 +154,6 @@ speedP = speedS.scan(simSpeed, (accumulator, factor) -> Math.round(accumulator *
 speedP.onValue((newSpeed) -> simSpeed = newSpeed)
 speedP.assign($('#speed'), 'text')
 
-## Initialize
-screenSize = Util.sizeCanvas()
-viewPort = viewPort.add(screenSize.multiply(1/2))
-scale2 = Math.round(2.5484e7 * 2 / screenSize.Y) * 1.1
-
 ## Game Loop
 modelP.sample(Util.ticksToMilliseconds(fps)).onValue((model) ->
   if orbit then $('#scale').text('Scale: ' + scale) else $('#scale').text('Scale: ' + scale2)
@@ -165,16 +171,19 @@ modelP.sample(Util.ticksToMilliseconds(fps)).onValue((model) ->
     # Check collisions and remove colliding objects by sending a delete request to the 'inputS' bus.
     #if Phys.checkCollisions(object, model).length > 0 then inputS.push('delete ' + object.UUID)
 
-  for object in Phys.checkCollisions(mousePos,model)
-    objectInfo = 'UUID: ' + object.UUID + ';\t'
+  for l in [0..1]
+    mousePos.layer = l
+    for object in Phys.checkCollisions(mousePos,model)
+      console.log(object)
+      objectInfo = 'UUID: ' + object.UUID + ';\t'
 
-    if orbit
-      objectInfo += 'Velocity: (' + Math.round(object.velocity.X) + 'm/s , ' + Math.round(object.velocity.Y) + 'm/s );\t'
-    else
-      objectInfo += 'Mass: ' + object.mass + 'kg;\t'
-      objectInfo += 'Radius: ' + object.radius + 'm;\t'
+      if orbit
+        objectInfo += 'Velocity: (' + Math.round(object.velocity.X) + 'm/s , ' + Math.round(object.velocity.Y) + 'm/s );\t'
+      else
+        objectInfo += 'Mass: ' + object.mass + 'kg;\t'
+        objectInfo += 'Radius: ' + object.radius + 'm;\t'
 
-    $('#objectInfo').text(objectInfo)
+      $('#objectInfo').text(objectInfo)
 
   # For every object...
   for object in model
