@@ -1,4 +1,4 @@
 .sass-lint.yml
 .sass-cache
-assets/styles/*.css*
-assets/scripts/*.js*
+assets/styles/*.sass*
+assets/scripts/*.coffee*
